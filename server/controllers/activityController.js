@@ -1,0 +1,31 @@
+const calculateCarbon = require("../services/carbonCalculator");
+const calculateEcoScore = require("../utils/ecoScore");
+const calculateRewards = require("../services/rewardService");
+const Activity = require("../models/Activity");
+
+exports.createActivity = async (req, res) => {
+  try {
+    const { totalEmission } =
+      calculateCarbon(req.body);
+
+    const ecoScore =
+      calculateEcoScore(totalEmission);
+
+    const { coins, badge } =
+      calculateRewards(totalEmission);
+
+    const activity = new Activity({
+      ...req.body,
+      totalEmission,
+      ecoScore,
+      coins,
+      badge,
+    });
+
+    await activity.save();
+
+    res.status(201).json(activity);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
