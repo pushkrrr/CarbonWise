@@ -6,6 +6,9 @@ const {
   getActivities,
 } = require("../controllers/activityController");
 
+console.log(createActivity);
+console.log(getActivities);
+
 router.post("/", createActivity);
 router.get("/", getActivities);
 
