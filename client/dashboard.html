@@ -1,44 +1,400 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CarbonWise Dashboard</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
-<nav class="navbar">
-  <div class="container" style="display:flex;justify-content:space-between;">
-    <h1>CarbonWise</h1>
-    <button onclick="logout()" class="button">Logout</button>
+<!-- Mobile top bar -->
+<div class="mobile-topbar">
+  <a href="index.html" class="sidebar-logo" style="font-size:18px;">
+    <span class="logo-icon">🌿</span> CarbonWise
+  </a>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">☰</button>
+</div>
 
-  </div>
-</nav>
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<section class="section container">
-  <div class="grid grid-3">
-    <div class="card">
-      <h3>Total Emission</h3>
-      <h2 id="totalEmission">0 kg</h2>
-    </div>
-    <div class="card">
-      <h3>Eco Score</h3>
-      <h2 id="ecoScore">0</h2>
-    </div>
-    <div class="card">
-      <h3>Total Coins</h3>
-      <h2 id="totalCoins">0</h2>
-    </div>
-  </div>
-</section>
+<!-- App Layout -->
+<div class="app-layout">
 
-<section class="container">
-  <div class="card">
-    <h3>AI Suggestions</h3>
-    <p id="suggestions"></p>
-  </div>
-</section>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="sidebar-logo">
+        <span class="logo-icon">🌿</span> CarbonWise
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <button class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">🏠</span> Dashboard
+      </button>
+
+      <div class="nav-section-label">Track</div>
+      <button class="nav-item" data-page="log">
+        <span class="nav-icon">➕</span> Log Activity
+      </button>
+      <button class="nav-item" data-page="analytics">
+        <span class="nav-icon">📊</span> Analytics
+      </button>
+
+      <div class="nav-section-label">Rewards</div>
+      <button class="nav-item" data-page="gamification">
+        <span class="nav-icon">🏆</span> Achievements
+      </button>
+      <button class="nav-item" data-page="suggestions">
+        <span class="nav-icon">✨</span> AI Suggestions
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="index.html" class="nav-item" style="margin-bottom:0;">
+        <span class="nav-icon">🏠</span> Home
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Desktop Topbar -->
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" style="font-size:13px; padding:10px 20px;" onclick="navigateTo('log')">
+          + Log Activity
+        </button>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- ══ DASHBOARD PAGE ══════════════════════ -->
+      <div class="page-section active" id="page-dashboard">
+        <div class="page-heading">
+          <h2>Your Carbon Overview</h2>
+          <p>Here's your sustainability snapshot at a glance.</p>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <span class="stat-icon">☁️</span>
+            <div class="stat-value" id="statTotalEmission">
+              <div class="skeleton" style="width:80px;height:36px;"></div>
+            </div>
+            <div class="stat-label">Total CO₂ Emissions</div>
+          </div>
+          <div class="stat-card" style="--gradient: linear-gradient(90deg, #c9a84c, #8b6f47)">
+            <span class="stat-icon">⭐</span>
+            <div class="stat-value" id="statEcoScore">
+              <div class="skeleton" style="width:80px;height:36px;"></div>
+            </div>
+            <div class="stat-label">Average Eco Score</div>
+          </div>
+          <div class="stat-card" style="--gradient: linear-gradient(90deg, #c9a84c, #e0bb6a)">
+            <span class="stat-icon">🪙</span>
+            <div class="stat-value" id="statCoins">
+              <div class="skeleton" style="width:80px;height:36px;"></div>
+            </div>
+            <div class="stat-label">EcoCoins Earned</div>
+          </div>
+          <div class="stat-card" style="--gradient: linear-gradient(90deg, #2d7a4f, #4caf78)">
+            <span class="stat-icon">📅</span>
+            <div class="stat-value" id="statDays">
+              <div class="skeleton" style="width:80px;height:36px;"></div>
+            </div>
+            <div class="stat-label">Days Tracked</div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-grid mb-6">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Emission Trend</div>
+                <div class="card-subtitle">Recent activity over time</div>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="emissionTrendChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Eco Score</div>
+                <div class="card-subtitle">Your current sustainability score</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:center; height:260px;">
+              <div class="eco-ring-wrap">
+                <div class="eco-ring">
+                  <svg width="140" height="140" viewBox="0 0 140 140">
+                    <circle class="eco-ring-bg" cx="70" cy="70" r="60"/>
+                    <circle class="eco-ring-fill" id="ecoRingFill" cx="70" cy="70" r="60"/>
+                  </svg>
+                  <div class="eco-ring-label">
+                    <div class="eco-ring-value" id="ecoRingValue">—</div>
+                    <div class="eco-ring-text">/ 100</div>
+                  </div>
+                </div>
+                <div style="text-align:center;">
+                  <div class="font-serif" style="font-size:16px; color:var(--forest); font-weight:600;" id="ecoRingLabel">Calculating…</div>
+                  <div class="text-sm text-muted">Eco Score</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activities Table -->
+        <div class="card mb-6">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Recent Activities</div>
+              <div class="card-subtitle">Your latest logged entries</div>
+            </div>
+            <button class="btn btn-ghost" style="font-size:12px; padding:8px 14px; color:var(--leaf); border-color:rgba(76,175,120,0.3);" onclick="navigateTo('log')">
+              + Add New
+            </button>
+          </div>
+          <div id="recentActivitiesTable">
+            <div class="loading-state"><div class="spinner"></div><span>Loading activities…</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ LOG ACTIVITY PAGE ════════════════════ -->
+      <div class="page-section" id="page-log">
+        <div class="page-heading">
+          <h2>Log Today's Activity</h2>
+          <p>Track your travel, energy, food, and lifestyle choices to calculate your carbon footprint.</p>
+        </div>
+
+        <form id="activityForm">
+          <!-- Travel -->
+          <div class="card mb-6">
+            <div class="form-section-title">🚗 Travel</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="carKm">Car Distance (km)</label>
+                <input class="form-input" type="number" id="carKm" name="carKm" placeholder="0" min="0" step="0.1" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="busKm">Bus Distance (km)</label>
+                <input class="form-input" type="number" id="busKm" name="busKm" placeholder="0" min="0" step="0.1" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Flight Today?</label>
+                <label class="form-check">
+                  <input type="checkbox" id="flight" name="flight" />
+                  Yes, I took a flight
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Electricity -->
+          <div class="card mb-6">
+            <div class="form-section-title">⚡ Electricity</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="units">Units Used (kWh)</label>
+                <input class="form-input" type="number" id="units" name="units" placeholder="0" min="0" step="0.1" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acHours">AC Hours Used</label>
+                <input class="form-input" type="number" id="acHours" name="acHours" placeholder="0" min="0" step="0.5" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Food -->
+          <div class="card mb-6">
+            <div class="form-section-title">🥗 Food</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="vegMeals">Vegetarian Meals</label>
+                <input class="form-input" type="number" id="vegMeals" name="vegMeals" placeholder="0" min="0" max="10" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="nonVegMeals">Non-Veg Meals</label>
+                <input class="form-input" type="number" id="nonVegMeals" name="nonVegMeals" placeholder="0" min="0" max="10" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Lifestyle -->
+          <div class="card mb-6">
+            <div class="form-section-title">♻️ Lifestyle</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="plasticUsage">Plastic Items Used</label>
+                <input class="form-input" type="number" id="plasticUsage" name="plasticUsage" placeholder="0" min="0" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Recycled Today?</label>
+                <label class="form-check">
+                  <input type="checkbox" id="recycled" name="recycled" />
+                  Yes, I recycled waste
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div style="display:flex; gap:12px; align-items:center;">
+            <button type="submit" class="btn btn-primary" style="font-size:15px; padding:14px 36px;" id="submitBtn">
+              Calculate & Log 🌿
+            </button>
+            <button type="button" class="btn btn-ghost" style="font-size:14px; border-color:rgba(45,122,79,0.3); color:var(--text-mid);" id="resetBtn">
+              Reset
+            </button>
+          </div>
+
+          <!-- Result -->
+          <div id="logResult" style="display:none; margin-top:24px;"></div>
+        </form>
+      </div>
+
+      <!-- ══ ANALYTICS PAGE ══════════════════════ -->
+      <div class="page-section" id="page-analytics">
+        <div class="page-heading">
+          <h2>Analytics & Insights</h2>
+          <p>Understand your carbon emission patterns over time.</p>
+        </div>
+
+        <div class="stats-grid mb-6" id="analyticsStats">
+          <div class="card">
+            <div class="card-subtitle mb-4">Total Emissions</div>
+            <div class="stat-value" id="anaTotal">—</div>
+            <div class="stat-label">kg CO₂</div>
+          </div>
+          <div class="card">
+            <div class="card-subtitle mb-4">Average per Day</div>
+            <div class="stat-value" id="anaAvg">—</div>
+            <div class="stat-label">kg CO₂ / day</div>
+          </div>
+          <div class="card">
+            <div class="card-subtitle mb-4">Days Tracked</div>
+            <div class="stat-value" id="anaDays">—</div>
+            <div class="stat-label">entries logged</div>
+          </div>
+        </div>
+
+        <div class="charts-grid mb-6">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Emission History</div>
+                <div class="card-subtitle">kg CO₂ per entry</div>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="analyticsBarChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Emission Breakdown</div>
+                <div class="card-subtitle">by category (latest entry)</div>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="breakdownDonutChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Eco Score Trend</div>
+              <div class="card-subtitle">How your score is evolving</div>
+            </div>
+          </div>
+          <div class="chart-container" style="height:200px;">
+            <canvas id="ecoScoreTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ GAMIFICATION PAGE ════════════════════ -->
+      <div class="page-section" id="page-gamification">
+        <div class="page-heading">
+          <h2>Your Achievements</h2>
+          <p>Earn coins and badges by reducing your carbon footprint.</p>
+        </div>
+
+        <div class="coins-display mb-6" id="coinsDisplay">
+          <div class="coins-icon">🪙</div>
+          <div>
+            <div class="coins-number" id="coinsNumber">—</div>
+            <div class="coins-label">EcoCoins earned</div>
+          </div>
+          <div style="margin-left:auto; text-align:right;">
+            <div class="text-sm text-muted">Days tracked</div>
+            <div class="font-serif" style="font-size:28px; color:var(--forest);" id="gamDays">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Badges Collection</div>
+              <div class="card-subtitle">Unlock badges by meeting eco goals</div>
+            </div>
+          </div>
+          <div id="badgesContainer">
+            <div class="loading-state"><div class="spinner"></div><span>Loading badges…</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SUGGESTIONS PAGE ════════════════════ -->
+      <div class="page-section" id="page-suggestions">
+        <div class="page-heading">
+          <h2>AI Suggestions</h2>
+          <p>Personalized tips from Google Gemini based on your activity data.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">✨ Powered by Gemini AI</div>
+              <div class="card-subtitle">Based on your latest activity log</div>
+            </div>
+            <button class="btn btn-ghost" style="font-size:12px; padding:8px 14px; color:var(--leaf); border-color:rgba(76,175,120,0.3);" id="refreshSuggestions">
+              🔄 Refresh
+            </button>
+          </div>
+          <div id="suggestionsContent">
+            <div class="loading-state"><div class="spinner"></div><span>Generating AI suggestions…</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- /page-content -->
+  </div> <!-- /main-content -->
+</div> <!-- /app-layout -->
+
+<!-- Toast notification -->
+<div class="toast" id="toastNotif"></div>
 
 <script src="js/api.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/gamification.js"></script>
+<script src="js/logActivity.js"></script>
 <script src="js/dashboard.js"></script>
 
 </body>

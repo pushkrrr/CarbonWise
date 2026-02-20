@@ -1,44 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>CarbonWise</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarbonWise — Track. Reduce. Thrive.</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
+<body class="landing-body">
 
-<nav class="navbar">
-  <div class="container" style="display:flex;justify-content:space-between;align-items:center;">
-    <h1>CarbonWise</h1>
-    <a href="dashboard.html" class="button">Dashboard</a>
+  <!-- Nav -->
+  <nav class="landing-nav">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">🌿</span>
+      CarbonWise
+    </a>
+    <a href="dashboard.html" class="btn btn-primary">Open Dashboard →</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">🌱 AI-Powered Sustainability Tracker</div>
+      <h1>Track. Reduce.<br><em>Thrive.</em></h1>
+      <p class="hero-sub">
+        Monitor your daily carbon footprint, earn rewards for eco-friendly choices,
+        and get personalized AI suggestions to live more sustainably.
+      </p>
+      <div class="hero-cta">
+        <a href="dashboard.html" class="btn btn-primary" style="font-size:16px; padding:16px 36px;">
+          Start Tracking Free
+        </a>
+        <a href="#features" class="btn btn-ghost">
+          See How It Works
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features strip -->
+  <div class="features-strip">
+    <div class="feature-item">
+      <span>⚡</span> <span>Real-time carbon calculation</span>
+    </div>
+    <div class="feature-item">
+      <span>🤖</span> <span>Gemini AI suggestions</span>
+    </div>
+    <div class="feature-item">
+      <span>🏅</span> <span>Gamified rewards system</span>
+    </div>
+    <div class="feature-item">
+      <span>📊</span> <span>Beautiful analytics charts</span>
+    </div>
   </div>
-</nav>
 
-<section class="section container" style="text-align:center;">
-  <h2 style="font-size:48px;letter-spacing:-0.02em;color:#50742a;">
-    Track. Reduce. Thrive.
-  </h2>
-  <p style="margin-top:20px;max-width:600px;margin-inline:auto;">
-    Intelligent carbon tracking platform powered by analytics,
-    AI insights and gamification.
-  </p>
-</section>
+  <!-- Features -->
+  <section class="features-grid" id="features">
+    <div class="section-label">What We Offer</div>
+    <h2 class="section-heading">Everything you need<br>to go green</h2>
+    <p class="section-sub">A complete sustainability toolkit — from daily logging to long-term trend analysis.</p>
 
-<section class="section container">
-  <div class="grid grid-3">
-    <div class="card">
-      <h3>Carbon Calculator</h3>
-      <p>Log daily activities and measure emissions instantly.</p>
+    <div class="feat-cards">
+      <div class="feat-card">
+        <span class="feat-icon">🌍</span>
+        <h3>Carbon Calculator</h3>
+        <p>Log travel, electricity, food, and lifestyle choices. Get instant CO₂ emission calculations with scientific accuracy.</p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">📈</span>
+        <h3>Smart Analytics</h3>
+        <p>Beautiful charts show emission trends, eco score evolution, and breakdown by category over time.</p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">✨</span>
+        <h3>AI Suggestions</h3>
+        <p>Google Gemini analyzes your patterns and delivers personalized, actionable sustainability tips.</p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🏆</span>
+        <h3>Gamification</h3>
+        <p>Earn EcoCoins and unlock badges as you reduce your footprint. Turn sustainability into a game you love.</p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">📱</span>
+        <h3>Mobile Friendly</h3>
+        <p>Fully responsive design. Track your impact from any device, anywhere, anytime.</p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🔒</span>
+        <h3>Your Data, Safe</h3>
+        <p>All data stored securely in MongoDB Atlas. No third-party data sharing, ever.</p>
+      </div>
     </div>
-    <div class="card">
-      <h3>Analytics</h3>
-      <p>Track trends and eco score improvements over time.</p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="logo" style="font-size:16px;">
+      <span class="logo-icon">🌿</span> CarbonWise
     </div>
-    <div class="card">
-      <h3>AI Suggestions</h3>
-      <p>Smart personalized recommendations.</p>
-    </div>
-  </div>
-</section>
+    <div>Built with 💚 for a greener planet</div>
+    <a href="dashboard.html" class="btn btn-primary" style="font-size:13px; padding:10px 20px;">
+      Launch App →
+    </a>
+  </footer>
 
 </body>
 </html>
