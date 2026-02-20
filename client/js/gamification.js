@@ -9,11 +9,9 @@ const BADGE_CONFIG = {
   'Bike Champion':  { icon: '🚴',  desc: 'Zero car travel for a week' },
   'Recycler':       { icon: '♻️',  desc: 'Recycled waste consistently' },
   'Eco Master':     { icon: '🏆',  desc: 'Achieved eco score above 80' },
-  // Fallback for unknown badges
   default:          { icon: '🎖️',  desc: 'Achievement unlocked' },
 };
 
-// All possible badges for the locked display
 const ALL_BADGES = Object.keys(BADGE_CONFIG).filter(k => k !== 'default');
 
 async function loadGamification() {
@@ -24,20 +22,10 @@ async function loadGamification() {
   try {
     const data = await fetchGamification();
 
-    // Coins
-    if (coinsEl) {
-      animateCounter(coinsEl, 0, data.totalCoins || 0, 800);
-    }
+    if (coinsEl) animateCounter(coinsEl, 0, data.totalCoins || 0, 1000);
+    if (daysEl)  daysEl.textContent = data.totalDays || 0;
+    if (container) renderBadges(container, data.badges || []);
 
-    // Days
-    if (daysEl) {
-      daysEl.textContent = data.totalDays || 0;
-    }
-
-    // Badges
-    if (container) {
-      renderBadges(container, data.badges || []);
-    }
   } catch (err) {
     console.error('Gamification error:', err);
     if (container) {
@@ -50,52 +38,79 @@ async function loadGamification() {
 }
 
 function renderBadges(container, earnedBadges) {
-  if (earnedBadges.length === 0 && ALL_BADGES.length === 0) {
-    container.innerHTML = `<div class="no-data">
-      <span class="no-data-icon">🏆</span>
-      Log activities to start earning badges!
-    </div>`;
-    return;
-  }
+  // Build the grid HTML (all badges, earned + locked)
+  const allItems = ALL_BADGES.map((badgeName) => {
+    const earned = earnedBadges.includes(badgeName);
+    const config = BADGE_CONFIG[badgeName] || BADGE_CONFIG.default;
+    return { badgeName, earned, config };
+  });
 
-  // Show earned badges first, then locked
-  const html = ALL_BADGES.map((badgeName, i) => {
-    const earned  = earnedBadges.includes(badgeName);
-    const config  = BADGE_CONFIG[badgeName] || BADGE_CONFIG.default;
-    return `
-      <div class="badge-card ${earned ? '' : 'badge-locked'}" style="animation-delay:${i * 0.06}s">
-        <span class="badge-icon">${config.icon}</span>
-        <div class="badge-name">${badgeName}</div>
-        <div class="text-sm text-muted" style="margin-top:4px; font-size:11px;">${config.desc}</div>
-        ${earned ? '<div style="margin-top:8px; font-size:11px; color:var(--leaf); font-weight:600;">✓ Earned</div>' : '<div style="margin-top:8px; font-size:11px; color:var(--text-light);">🔒 Locked</div>'}
-      </div>
+  // Append any custom earned badges not in our config
+  earnedBadges.forEach(b => {
+    if (!ALL_BADGES.includes(b)) {
+      allItems.push({ badgeName: b, earned: true, config: BADGE_CONFIG.default });
+    }
+  });
+
+  // Sort: earned first
+  allItems.sort((a, b) => (b.earned ? 1 : 0) - (a.earned ? 1 : 0));
+
+  container.innerHTML = `<div class="badges-grid" id="badgesGrid"></div>`;
+  const grid = container.querySelector('#badgesGrid');
+
+  allItems.forEach(({ badgeName, earned, config }, i) => {
+    const card = document.createElement('div');
+    card.className = `badge-card ${earned ? '' : 'badge-locked'}`;
+    card.dataset.badge = badgeName;
+    card.innerHTML = `
+      <span class="badge-icon">${config.icon}</span>
+      <div class="badge-name">${badgeName}</div>
+      <div class="text-sm text-muted" style="margin-top:4px; font-size:11px;">${config.desc}</div>
+      ${earned
+        ? '<div class="badge-status-earned">✓ Earned</div>'
+        : '<div class="badge-status-locked">🔒 Locked</div>'
+      }
     `;
-  }).join('');
 
-  // Also show any custom badges not in config
-  const customBadges = earnedBadges.filter(b => !ALL_BADGES.includes(b));
-  const customHtml = customBadges.map((badgeName, i) => {
-    const config = BADGE_CONFIG.default;
-    return `
-      <div class="badge-card" style="animation-delay:${(ALL_BADGES.length + i) * 0.06}s">
-        <span class="badge-icon">${config.icon}</span>
-        <div class="badge-name">${badgeName}</div>
-        <div style="margin-top:8px; font-size:11px; color:var(--leaf); font-weight:600;">✓ Earned</div>
-      </div>
-    `;
-  }).join('');
+    // Add style for status labels
+    const style = document.createElement('style');
+    if (!document.querySelector('#badgeStatusStyles')) {
+      style.id = 'badgeStatusStyles';
+      style.textContent = `
+        .badge-status-earned { margin-top:8px; font-size:11px; color:var(--leaf); font-weight:600; }
+        .badge-status-locked { margin-top:8px; font-size:11px; color:var(--text-light); }
+      `;
+      document.head.appendChild(style);
+    }
 
-  container.innerHTML = `<div class="badges-grid">${html}${customHtml}</div>`;
+    grid.appendChild(card);
+
+    // Animate earned cards with 3D flip; locked cards fade-slide in
+    if (earned) {
+      if (typeof animateEarnedBadgeCard === 'function') {
+        animateEarnedBadgeCard(card, i * 80);
+      }
+    } else {
+      card.style.opacity   = '0';
+      card.style.transform = 'translateY(12px)';
+      setTimeout(() => {
+        card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        card.style.opacity    = '1';
+        card.style.transform  = 'translateY(0)';
+      }, i * 55 + 100);
+    }
+  });
 }
 
 function animateCounter(el, from, to, duration) {
   const start = performance.now();
   function update(now) {
-    const elapsed = now - start;
+    const elapsed  = now - start;
     const progress = Math.min(elapsed / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
+    const eased    = 1 - Math.pow(1 - progress, 3);
     el.textContent = Math.round(from + (to - from) * eased);
     if (progress < 1) requestAnimationFrame(update);
+    else el.classList.add('coin-earn-pulse');
   }
   requestAnimationFrame(update);
 }
