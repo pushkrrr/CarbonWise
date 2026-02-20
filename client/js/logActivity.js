@@ -1,4 +1,4 @@
-// logActivity.js — Fixed: reads actual form inputs instead of hardcoded values
+// logActivity.js — Reads actual form inputs and triggers earn animations
 
 document.getElementById("activityForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -6,7 +6,6 @@ document.getElementById("activityForm")?.addEventListener("submit", async (e) =>
   const submitBtn = document.getElementById("submitBtn");
   const resultEl  = document.getElementById("logResult");
 
-  // Read actual form values
   const data = {
     travel: {
       carKm:  parseFloat(document.getElementById("carKm")?.value)  || 0,
@@ -27,18 +26,16 @@ document.getElementById("activityForm")?.addEventListener("submit", async (e) =>
     }
   };
 
-  // Loading state
   submitBtn.disabled = true;
   submitBtn.textContent = "Calculating…";
 
   try {
     const result = await logActivity(data);
 
-    // Show success result
-    if (resultEl) {
-      const emissionClass = result.totalEmission > 20 ? 'emission-high' :
-                            result.totalEmission > 10 ? 'emission-mid'  : 'emission-low';
+    const emissionClass = result.totalEmission > 20 ? 'emission-high' :
+                          result.totalEmission > 10 ? 'emission-mid'  : 'emission-low';
 
+    if (resultEl) {
       resultEl.style.display = 'block';
       resultEl.innerHTML = `
         <div class="card" style="border-color: rgba(76,175,120,0.3); animation: fadeUp 0.4s ease;">
@@ -60,14 +57,16 @@ document.getElementById("activityForm")?.addEventListener("submit", async (e) =>
               <div class="text-muted text-sm">Eco Score</div>
               <div class="font-serif" style="font-size:26px; font-weight:700; color:var(--forest); margin-top:4px;">${result.ecoScore || '—'}</div>
             </div>
-            <div>
+            <div id="earnedCoinsDisplay">
               <div class="text-muted text-sm">Coins Earned</div>
-              <div class="font-serif" style="font-size:26px; font-weight:700; color:var(--earth); margin-top:4px;">🪙 ${result.coins || 0}</div>
+              <div class="font-serif" style="font-size:26px; font-weight:700; color:var(--earth); margin-top:4px;" id="earnedCoinsValue">🪙 0</div>
             </div>
             ${result.badge ? `
             <div>
-              <div class="text-muted text-sm">Badge Earned</div>
-              <div style="font-size:20px; margin-top:6px;">${result.badge}</div>
+              <div class="text-muted text-sm">Badge Earned!</div>
+              <div style="font-size:20px; margin-top:6px;" id="earnedBadgeDisplay">
+                ${(typeof BADGE_CONFIG_ANIM !== 'undefined' && BADGE_CONFIG_ANIM[result.badge]?.icon) || '🎖️'} ${result.badge}
+              </div>
             </div>
             ` : ''}
           </div>
@@ -82,18 +81,26 @@ document.getElementById("activityForm")?.addEventListener("submit", async (e) =>
           </div>
         </div>
       `;
+
+      // Count-up coins in result card
+      const coinsValueEl = document.getElementById('earnedCoinsValue');
+      if (coinsValueEl && result.coins > 0) {
+        animateCoinsDisplay(coinsValueEl, result.coins);
+      }
+    }
+
+    // Fire coin burst + badge modal
+    const coinsOrigin = document.getElementById('earnedCoinsDisplay');
+    if (typeof playEarnAnimations === 'function') {
+      playEarnAnimations(result, coinsOrigin);
     }
 
     showToast("Activity logged successfully! 🌿", "success");
 
-    // Reload dashboard data in background
-    if (window._dashboardLoaded) {
-      loadDashboardData();
-    }
+    if (window._dashboardLoaded) loadDashboardData();
 
   } catch (err) {
     console.error("Log activity error:", err);
-
     if (resultEl) {
       resultEl.style.display = 'block';
       resultEl.innerHTML = `
@@ -105,7 +112,6 @@ document.getElementById("activityForm")?.addEventListener("submit", async (e) =>
         </div>
       `;
     }
-
     showToast("Failed to log activity. Check server connection.", "error");
   } finally {
     submitBtn.disabled = false;
@@ -113,7 +119,20 @@ document.getElementById("activityForm")?.addEventListener("submit", async (e) =>
   }
 });
 
-// Reset button
+function animateCoinsDisplay(el, total) {
+  let current = 0;
+  const steps    = 32;
+  const stepTime = 900 / steps;
+  const timer = setInterval(() => {
+    current = Math.min(current + Math.ceil(total / steps), total);
+    el.textContent = `🪙 ${current}`;
+    if (current >= total) {
+      clearInterval(timer);
+      el.classList.add('coin-earn-pulse');
+    }
+  }, stepTime);
+}
+
 document.getElementById("resetBtn")?.addEventListener("click", () => {
   document.getElementById("activityForm")?.reset();
   const resultEl = document.getElementById("logResult");
