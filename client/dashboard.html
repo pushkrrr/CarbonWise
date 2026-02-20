@@ -55,9 +55,31 @@
     </nav>
 
     <div class="sidebar-footer">
-      <a href="index.html" class="nav-item" style="margin-bottom:0;">
-        <span class="nav-icon">🏠</span> Home
-      </a>
+      <!-- User info -->
+      <div id="sidebarUserCard" style="
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        background: rgba(76,175,120,0.08);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      ">
+        <div style="
+          width: 34px; height: 34px;
+          border-radius: 50%;
+          background: rgba(76,175,120,0.25);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 16px; flex-shrink: 0;
+        ">🌿</div>
+        <div style="overflow: hidden; flex: 1; min-width: 0;">
+          <div id="sidebarUserName" style="font-size:13px; font-weight:600; color:var(--mist); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">User</div>
+          <div id="sidebarUserEmail" style="font-size:11px; color:rgba(168,216,184,0.45); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+        </div>
+      </div>
+      <button class="nav-item" onclick="logout()" style="margin-bottom:0; color:rgba(229,115,115,0.75);">
+        <span class="nav-icon">🚪</span> Sign Out
+      </button>
     </div>
   </aside>
 

@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CarbonWise — Track. Reduce. Thrive.</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    // If already logged in, redirect to dashboard
+    if (localStorage.getItem('cw_session') || localStorage.getItem('carbonUser')) {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
 </head>
 <body class="landing-body">
 
@@ -14,7 +20,7 @@
       <span class="logo-icon">🌿</span>
       CarbonWise
     </a>
-    <a href="dashboard.html" class="btn btn-primary">Open Dashboard →</a>
+    <a href="login.html" class="btn btn-primary">Open Dashboard →</a>
   </nav>
 
   <!-- Hero -->
@@ -33,7 +39,7 @@
         and get personalized AI suggestions to live more sustainably.
       </p>
       <div class="hero-cta">
-        <a href="dashboard.html" class="btn btn-primary" style="font-size:16px; padding:16px 36px;">
+        <a href="login.html" class="btn btn-primary" style="font-size:16px; padding:16px 36px;">
           Start Tracking Free
         </a>
         <a href="#features" class="btn btn-ghost">
@@ -105,7 +111,7 @@
       <span class="logo-icon">🌿</span> CarbonWise
     </div>
     <div>Built with 💚 for a greener planet</div>
-    <a href="dashboard.html" class="btn btn-primary" style="font-size:13px; padding:10px 20px;">
+    <a href="login.html" class="btn btn-primary" style="font-size:13px; padding:10px 20px;">
       Launch App →
     </a>
   </footer>

@@ -1,7 +1,27 @@
 // dashboard.js — Main controller for the CarbonWise Dashboard
 
-// NOTE: Removed localStorage auth gate — backend APIs don't require auth.
-// The login system can be added separately without breaking the dashboard.
+// ─── Auth Gate ──────────────────────────────────────────────────
+// Frontend-only mock auth. Redirect to login if no session exists.
+(function checkAuth() {
+  const session = localStorage.getItem('cw_session') || localStorage.getItem('carbonUser');
+  if (!session) {
+    window.location.href = 'login.html';
+  }
+})();
+
+// Show logged-in user's name in sidebar & topbar
+(function displayUser() {
+  try {
+    const session = JSON.parse(localStorage.getItem('cw_session'));
+    if (!session) return;
+
+    // Populate user info elements if present
+    const nameEl  = document.getElementById('sidebarUserName');
+    const emailEl = document.getElementById('sidebarUserEmail');
+    if (nameEl)  nameEl.textContent  = session.name  || 'User';
+    if (emailEl) emailEl.textContent = session.email || '';
+  } catch {}
+})();
 
 window._dashboardLoaded = false;
 
@@ -258,7 +278,12 @@ function closeSidebar() {
 document.getElementById('hamburgerBtn')?.addEventListener('click', openSidebar);
 document.getElementById('sidebarOverlay')?.addEventListener('click', closeSidebar);
 
-// ─── INIT ────────────────────────────────────────────────────────
+// ─── Logout ──────────────────────────────────────────────────────
+function logout() {
+  localStorage.removeItem('cw_session');
+  localStorage.removeItem('carbonUser');
+  window.location.href = 'login.html';
+}
 document.addEventListener('DOMContentLoaded', () => {
   loadDashboardData();
 });

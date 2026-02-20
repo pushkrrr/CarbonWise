@@ -1,52 +1,368 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Register - CarbonWise</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — CarbonWise</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    body { background: var(--forest); min-height: 100vh; display: flex; flex-direction: column; }
+
+    .auth-page {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 90% 10%, rgba(45,122,79,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 10% 90%, rgba(201,168,76,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .auth-card {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 460px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(76,175,120,0.2);
+      border-radius: var(--radius-lg);
+      padding: 48px 44px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.35);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: 'Fraunces', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--moss);
+      text-decoration: none;
+      margin-bottom: 36px;
+    }
+
+    .auth-logo .logo-icon { font-size: 28px; filter: drop-shadow(0 0 10px rgba(76,175,120,0.5)); }
+
+    .auth-heading {
+      font-family: 'Fraunces', serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--cream);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .auth-subheading {
+      text-align: center;
+      color: rgba(244,241,232,0.5);
+      font-size: 14px;
+      margin-bottom: 36px;
+    }
+
+    .auth-form-group { margin-bottom: 18px; }
+
+    .auth-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(168,216,184,0.7);
+      margin-bottom: 8px;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(76,175,120,0.2);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--cream);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .auth-input::placeholder { color: rgba(168,216,184,0.3); }
+
+    .auth-input:focus {
+      border-color: var(--moss);
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 0 3px rgba(76,175,120,0.12);
+    }
+
+    .auth-input.error {
+      border-color: rgba(192,57,43,0.7);
+      box-shadow: 0 0 0 3px rgba(192,57,43,0.1);
+    }
+
+    .auth-input-wrap { position: relative; }
+
+    .auth-input-wrap .toggle-pw {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: rgba(168,216,184,0.5);
+      padding: 0;
+      line-height: 1;
+      transition: var(--transition);
+    }
+    .auth-input-wrap .toggle-pw:hover { color: var(--moss); }
+
+    .field-error {
+      font-size: 12px;
+      color: #e57373;
+      margin-top: 6px;
+      display: none;
+    }
+    .field-error.show { display: block; }
+
+    /* Password strength */
+    .pw-strength {
+      margin-top: 8px;
+      display: none;
+    }
+    .pw-strength.show { display: block; }
+
+    .pw-strength-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(76,175,120,0.1);
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .pw-strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      width: 0%;
+      transition: var(--transition);
+    }
+
+    .pw-strength-label {
+      font-size: 11px;
+      color: rgba(168,216,184,0.5);
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 15px;
+      margin-top: 8px;
+      background: var(--moss);
+      color: var(--forest);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .auth-btn:hover:not(:disabled) {
+      background: var(--mist);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(76,175,120,0.3);
+    }
+
+    .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 28px 0;
+    }
+
+    .auth-divider::before, .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(76,175,120,0.15);
+    }
+
+    .auth-divider span { font-size: 12px; color: rgba(168,216,184,0.4); }
+
+    .auth-switch {
+      text-align: center;
+      font-size: 14px;
+      color: rgba(244,241,232,0.5);
+    }
+
+    .auth-switch a {
+      color: var(--moss);
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    .auth-switch a:hover { color: var(--mist); }
+
+    .auth-alert {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .auth-alert.show { display: flex; }
+    .auth-alert.success { background: rgba(45,122,79,0.2); border: 1px solid rgba(76,175,120,0.3); color: var(--mist); }
+    .auth-alert.error   { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.3); color: #e57373; }
+
+    .perks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .perk-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: rgba(244,241,232,0.55);
+    }
+
+    .perk-item span:first-child { font-size: 16px; }
+
+    .auth-footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: rgba(168,216,184,0.25);
+      margin-top: 24px;
+    }
+
+    @media (max-width: 480px) {
+      .auth-card { padding: 36px 24px; }
+    }
+  </style>
 </head>
 <body>
 
-<nav class="navbar">
-  <div class="container" style="display:flex;justify-content:space-between;align-items:center;">
-    <h1>CarbonWise</h1>
-    <a href="index.html" class="button">Home</a>
-  </div>
-</nav>
+<div class="auth-page">
+  <div class="auth-bg"></div>
 
-<section class="section">
-  <div class="container" style="display:flex;justify-content:center;align-items:center;min-height:70vh;">
-    
-    <div class="card" style="width:100%;max-width:420px;">
-      
-      <h2 style="text-align:center;font-size:28px;letter-spacing:-0.02em;color:#50742a;">
-        Create Account
-      </h2>
+  <div class="auth-card">
 
-      <p style="text-align:center;margin-top:8px;color:#147138;">
-        Start your sustainable journey today
-      </p>
+    <a href="index.html" class="auth-logo">
+      <span class="logo-icon">🌿</span> CarbonWise
+    </a>
 
-      <form id="registerForm" style="margin-top:32px;">
-        <input type="text" placeholder="Full Name" required />
-        <input type="email" placeholder="Email" required />
-        <input type="password" placeholder="Password" required />
+    <h1 class="auth-heading">Start your journey</h1>
+    <p class="auth-subheading">Create a free account and track your planet impact</p>
 
-        <button type="submit" class="button" style="width:100%;margin-top:12px;">
-          Register
-        </button>
-      </form>
+    <!-- Perks -->
+    <div class="perks-list">
+      <div class="perk-item"><span>🌍</span> <span>Real-time carbon footprint tracking</span></div>
+      <div class="perk-item"><span>✨</span> <span>Gemini AI personalised tips</span></div>
+      <div class="perk-item"><span>🏆</span> <span>Earn badges & EcoCoins</span></div>
+    </div>
 
-      <p style="margin-top:24px;text-align:center;">
-        Already have an account?
-        <a href="login.html" style="color:#009444;font-weight:600;">
-          Login
-        </a>
-      </p>
+    <!-- Alert -->
+    <div class="auth-alert" id="registerAlert"></div>
 
+    <form id="registerForm" novalidate>
+
+      <div class="auth-form-group">
+        <label class="auth-label" for="regName">Full Name</label>
+        <input
+          class="auth-input"
+          type="text"
+          id="regName"
+          placeholder="Alex Green"
+          autocomplete="name"
+        />
+        <div class="field-error" id="nameError">Please enter your name.</div>
+      </div>
+
+      <div class="auth-form-group">
+        <label class="auth-label" for="regEmail">Email Address</label>
+        <input
+          class="auth-input"
+          type="email"
+          id="regEmail"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+        <div class="field-error" id="emailError">Please enter a valid email address.</div>
+      </div>
+
+      <div class="auth-form-group">
+        <label class="auth-label" for="regPassword">Password</label>
+        <div class="auth-input-wrap">
+          <input
+            class="auth-input"
+            type="password"
+            id="regPassword"
+            placeholder="Min. 6 characters"
+            autocomplete="new-password"
+            id="regPassword"
+          />
+          <button type="button" class="toggle-pw" id="togglePw" aria-label="Toggle password">👁</button>
+        </div>
+        <div class="pw-strength" id="pwStrength">
+          <div class="pw-strength-bar"><div class="pw-strength-fill" id="pwStrengthFill"></div></div>
+          <div class="pw-strength-label" id="pwStrengthLabel">Enter a password</div>
+        </div>
+        <div class="field-error" id="passwordError">Password must be at least 6 characters.</div>
+      </div>
+
+      <div class="auth-form-group">
+        <label class="auth-label" for="regConfirm">Confirm Password</label>
+        <input
+          class="auth-input"
+          type="password"
+          id="regConfirm"
+          placeholder="Repeat your password"
+          autocomplete="new-password"
+        />
+        <div class="field-error" id="confirmError">Passwords do not match.</div>
+      </div>
+
+      <button type="submit" class="auth-btn" id="registerBtn">
+        <span id="registerBtnText">Create Account 🌿</span>
+      </button>
+
+    </form>
+
+    <div class="auth-divider"><span>or</span></div>
+
+    <div class="auth-switch">
+      Already have an account? <a href="login.html">Sign in</a>
+    </div>
+
+    <div class="auth-footer-note">
+      🔒 Demo mode — credentials saved locally in your browser
     </div>
 
   </div>
-</section>
+</div>
 
 <script src="js/auth.js"></script>
 
